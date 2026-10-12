@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14306b">
+<title>VHP Pan Calculator · KBSK</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16202e; --ink-2:#4a5566; --ink-3:#7a8495;
+  --paper:#f3f5f8; --panel:#ffffff; --line:#d9dee6;
+  --navy:#14306b; --navy-2:#1f4396;
+  --amber:#b8780c; --amber-soft:#fdf3df;
+  --ok:#17784a; --ok-soft:#e3f4ea;
+  --warn:#a85b00; --warn-soft:#fff0d9;
+  --bad:#b3261e; --bad-soft:#fbe4e2;
+  --z-under:#8fb4e3; --z-meta:#3aa36b; --z-inter:#e0a21b; --z-labile:#d1442f;
+  --field:#f7f8fa;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ink:#e8ecf2; --ink-2:#b4bdca; --ink-3:#8590a1;
+    --paper:#0f1520; --panel:#18202d; --line:#2c3646;
+    --navy:#0d2150; --navy-2:#7fa2ea;
+    --amber:#f0b545; --amber-soft:#3a2c10;
+    --ok:#5fd39a; --ok-soft:#123826;
+    --warn:#ffb85c; --warn-soft:#3b2a10;
+    --bad:#ff8a80; --bad-soft:#3f1714;
+    --field:#121a26;
+  }
+}
+:root[data-theme="dark"]{
+  --ink:#e8ecf2; --ink-2:#b4bdca; --ink-3:#8590a1;
+  --paper:#0f1520; --panel:#18202d; --line:#2c3646;
+  --navy:#0d2150; --navy-2:#7fa2ea;
+  --amber:#f0b545; --amber-soft:#3a2c10;
+  --ok:#5fd39a; --ok-soft:#123826;
+  --warn:#ffb85c; --warn-soft:#3b2a10;
+  --bad:#ff8a80; --bad-soft:#3f1714;
+  --field:#121a26;
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 120px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);
+  font-family:"IBM Plex Sans Thai","Noto Sans Thai","Leelawadee UI",Tahoma,system-ui,sans-serif;
+  font-size:16px;line-height:1.55}
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--navy);color:#fff;
+  box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.top-inner{max-width:760px;margin:0 auto;padding:12px 16px 0}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+.brand h1{margin:0;white-space:nowrap;font-size:1.15rem;font-weight:700;letter-spacing:.01em}
+.brand span{font-size:.8rem;opacity:.75}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 0 12px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;border:1px solid rgba(255,255,255,.28);background:transparent;color:#fff;
+  font:inherit;font-size:.86rem;padding:6px 12px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{background:#fff;color:#14306b;border-color:#fff;font-weight:600}
+.tab:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+main{max-width:760px;margin:0 auto;padding:16px 16px 40px}
+.calc-head{margin:4px 0 14px}
+.calc-head h2{margin:0;font-size:1.35rem;line-height:1.3}
+.calc-head p{margin:4px 0 0;color:var(--ink-2);font-size:.92rem}
+.slide-ref{display:inline-block;font-size:.78rem;color:var(--ink-3);margin-top:4px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px}
+.panel + .panel{margin-top:12px}
+.panel h3{margin:0 0 10px;font-size:.95rem;color:var(--ink-2);font-weight:600}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}
+@media (max-width:360px){.grid{grid-template-columns:1fr}}
+.f{display:flex;flex-direction:column;gap:4px;min-width:0}
+.f.full{grid-column:1/-1}
+.f label{font-size:.84rem;color:var(--ink-2);line-height:1.3}
+.inwrap{display:flex;align-items:stretch;border:1.5px solid var(--line);border-radius:10px;background:var(--field);overflow:hidden}
+.inwrap:focus-within{border-color:var(--navy-2)}
+.inwrap input,.inwrap select{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:inherit;
+  font-size:1.08rem;font-weight:600;padding:10px 10px;font-variant-numeric:tabular-nums;outline:none}
+.inwrap select{font-weight:500;font-size:1rem;appearance:none;-webkit-appearance:none}
+.inwrap input::placeholder{font-weight:400;color:var(--ink-3)}
+.inwrap .u{display:flex;align-items:center;padding:0 10px;font-size:.8rem;color:var(--ink-3);white-space:nowrap}
+.res-list{display:flex;flex-direction:column}
+.res{display:flex;justify-content:space-between;align-items:baseline;gap:12px;padding:9px 0;border-top:1px solid var(--line)}
+.res:first-child{border-top:0;padding-top:2px}
+.res .l{color:var(--ink-2);font-size:.9rem}
+.res .v{font-variant-numeric:tabular-nums;font-weight:600;font-size:1.05rem;text-align:right}
+.res .v small{font-weight:400;color:var(--ink-3);font-size:.78rem;margin-left:4px}
+.res.main{padding:4px 0 12px}
+.res.main .v{font-size:2.1rem;line-height:1.1;color:var(--amber);font-weight:700}
+.res.main .l{font-size:1rem;color:var(--ink);font-weight:600}
+.pill{display:inline-block;padding:3px 10px;border-radius:999px;font-size:.82rem;font-weight:600;margin-top:2px}
+.pill.ok{background:var(--ok-soft);color:var(--ok)}
+.pill.warn{background:var(--warn-soft);color:var(--warn)}
+.pill.bad{background:var(--bad-soft);color:var(--bad)}
+.status{margin-top:10px;display:flex;flex-direction:column;gap:6px}
+.status .msg{font-size:.88rem;color:var(--ink-2)}
+.formula{margin-top:12px;border-top:1px dashed var(--line);padding-top:10px}
+.formula summary{cursor:pointer;color:var(--navy-2);font-weight:600;font-size:.9rem}
+.formula .body{margin-top:8px;font-size:.9rem;color:var(--ink-2)}
+.formula code{display:block;background:var(--field);border:1px solid var(--line);border-radius:8px;padding:8px 10px;margin:6px 0;
+  font-family:inherit;font-size:.9rem;color:var(--ink);white-space:pre-wrap;overflow-x:auto}
+.actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.btn{font:inherit;font-size:.88rem;border:1.5px solid var(--line);background:var(--panel);color:var(--ink);
+  padding:8px 14px;border-radius:10px;cursor:pointer}
+.btn:focus-visible{outline:2px solid var(--navy-2);outline-offset:2px}
+.err{color:var(--bad);font-size:.88rem;margin-top:8px}
+/* SC gauge */
+.gauge{margin:6px 0 4px}
+.gbar{position:relative;height:18px;border-radius:9px;overflow:hidden;display:flex}
+.gbar div{height:100%}
+.gmark{position:relative;height:26px;margin-top:-22px;pointer-events:none}
+.gmark i{position:absolute;top:0;width:4px;height:26px;margin-left:-2px;background:var(--ink);border-radius:2px;
+  box-shadow:0 0 0 2px var(--panel);transition:left .25s ease}
+.gscale{position:relative;height:18px;font-size:.72rem;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.gscale span{position:absolute;transform:translateX(-50%)}
+.glegend{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:.78rem;color:var(--ink-2);margin-top:4px}
+.glegend b{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+.foot{max-width:760px;margin:0 auto;padding:0 16px 28px;font-size:.78rem;color:var(--ink-3)}
+@media (prefers-reduced-motion: reduce){.gmark i{transition:none}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-inner">
+    <div class="brand"><h1>VHP Pan Calculator</h1><span>KBSK · VHP</span></div>
+    <nav class="tabs" id="tabs" role="tablist" aria-label="เลือกสูตรคำนวณ"></nav>
+  </div>
+</header>
+<main id="app"></main>
+<p class="foot">สูตรอ้างอิงจากเอกสาร KBSK VHP Batch Vacuum Pan Training (9 ต.ค. 2026) · ค่าที่ใส่ไว้ตั้งต้นคือตัวอย่างในสไลด์ ใช้ตรวจสอบว่าผลตรงกัน · ตัวเลขที่กรอกจะถูกจำไว้ในเครื่องนี้</p>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- Thieme's table (slide 28): saturated concentration % by weight ---------- */
+var TQ=[92,90,88,86,84,82,80,78,76,74,72,70,68,66,64,62,60,58,56,54,52,50];
+var TT=[62,64,66,68,70,72,74,76,78,80];
+var TH=[
+[75.6,75.9,76.2,76.5,76.7,77,77.3,77.6,78,78.3,78.7,79,79.3,79.7,80.1,80.4,80.8,81.1,81.4,81.7,82.1,82.4],
+[76,76.3,76.5,76.8,77.1,77.4,77.7,78,78.4,78.7,79,79.4,79.7,80.1,80.4,80.8,81.1,81.4,81.7,82.1,82.4,82.7],
+[76.4,76.6,77,77.2,77.5,77.8,78.1,78.4,78.7,79.1,79.4,79.7,80.1,80.4,80.8,81.1,81.4,81.7,82,82.4,82.7,83],
+[76.8,77.1,77.3,77.6,77.9,78.2,78.5,78.8,79.1,79.4,79.8,80.1,80.4,80.8,81.1,81.5,81.8,82.1,82.4,82.8,83,83.4],
+[77.2,77.5,77.7,78,78.3,78.6,78.9,79.2,79.5,79.8,80.1,80.5,80.8,81.1,81.4,81.7,82.1,82.4,82.7,83,83.3,83.7],
+[77.6,77.9,78.1,78.4,78.7,79,79.2,79.5,79.8,80.2,80.5,80.8,81.1,81.5,81.8,82.1,82.4,82.7,83,83.3,83.7,84],
+[78,78.3,78.5,78.8,79.1,79.4,79.6,79.9,80.2,80.5,80.8,81.2,81.5,81.8,82.2,82.5,82.8,83.1,83.4,83.7,84,84.3],
+[78.4,78.7,78.9,79.2,79.5,79.7,80,80.3,80.6,80.9,81.2,81.6,81.9,82.2,82.5,82.8,83.1,83.4,83.7,84,84.3,84.6],
+[78.9,79.1,79.3,79.6,79.9,80.1,80.4,80.7,81,81.3,81.6,81.9,82.2,82.6,82.9,83.2,83.5,83.8,84.1,84.4,84.7,85],
+[79.3,79.5,79.7,80,80.3,80.5,80.8,81.1,81.4,81.7,82,82.3,82.6,82.9,83.2,83.5,83.8,84.1,84.4,84.7,85,85.3]
+];
+function thieme(T,Q){
+  var out=false, t=T, q=Q;
+  if(t<62){t=62;out=true} if(t>80){t=80;out=true}
+  if(q>92){q=92;out=true} if(q<50){q=50;out=true}
+  var i=Math.min(Math.floor((t-62)/2),8), ft=(t-TT[i])/2;
+  var j=Math.min(Math.floor((92-q)/2),20), fq=(TQ[j]-q)/2;
+  var a=TH[i][j],b=TH[i][j+1],c=TH[i+1][j],d=TH[i+1][j+1];
+  var v=a*(1-ft)*(1-fq)+b*(1-ft)*fq+c*ft*(1-fq)+d*ft*fq;
+  return {v:v,out:out};
+}
+function scOf(brix,sat){return (brix/(100-brix))/(sat/(100-sat));}
+function zoneOf(sc){
+  if(sc<1.00) return {name:"ไม่อิ่มตัว (Undersaturated) – ผลึกละลาย",cls:"bad"};
+  if(sc<=1.20) return {name:"Metastable zone – ผลึกโต ไม่เกิดผลึกใหม่",cls:"ok"};
+  if(sc<=1.30) return {name:"Intermediate zone – เสี่ยงเกิดผลึกใหม่",cls:"warn"};
+  return {name:"Labile zone – เกิด False grain เอง",cls:"bad"};
+}
+
+/* ---------- helpers ---------- */
+function fmt(x,dp){
+  if(x===null||x===undefined||!isFinite(x)) return "–";
+  return x.toLocaleString("en-US",{minimumFractionDigits:dp,maximumFractionDigits:dp});
+}
+function hm(min){
+  if(!isFinite(min)) return "–";
+  var m=Math.floor(min+1e-9), h=Math.floor(m/60), r=m%60;
+  return h+" ชม. "+r+" นาที";
+}
+function pill(cls,txt){return '<span class="pill '+cls+'">'+txt+'</span>';}
+function gauge(sc){
+  var lo=0.90, hi=1.45, span=hi-lo;
+  function p(x){return ((Math.min(Math.max(x,lo),hi)-lo)/span*100).toFixed(2)+"%";}
+  var zones=[[lo,1.00,"var(--z-under)"],[1.00,1.20,"var(--z-meta)"],[1.20,1.30,"var(--z-inter)"],[1.30,hi,"var(--z-labile)"]];
+  var bars=zones.map(function(z){return '<div style="width:'+((z[1]-z[0])/span*100)+'%;background:'+z[2]+'"></div>';}).join("");
+  var ticks=[0.9,1.0,1.1,1.2,1.3,1.4].map(function(t){return '<span style="left:'+p(t)+'">'+t.toFixed(2)+'</span>';}).join("");
+  return '<div class="gauge" role="img" aria-label="ตำแหน่ง SC '+fmt(sc,3)+' บนแถบโซน">'+
+    '<div class="gbar">'+bars+'</div>'+
+    '<div class="gmark">'+(isFinite(sc)?'<i style="left:'+p(sc)+'"></i>':'')+'</div>'+
+    '<div class="gscale">'+ticks+'</div>'+
+    '<div class="glegend"><span><b style="background:var(--z-under)"></b>&lt;1.00 ละลาย</span><span><b style="background:var(--z-meta)"></b>1.00–1.20 Metastable</span><span><b style="background:var(--z-inter)"></b>1.20–1.30 Intermediate</span><span><b style="background:var(--z-labile)"></b>&gt;1.30 Labile</span></div>'+
+  '</div>';
+}
+
+/* ---------- calculators ---------- */
+var CALCS=[
+{
+  id:"purity", tab:"Purity", title:"Purity (ความบริสุทธิ์)", slide:"สไลด์ 4",
+  desc:"ร้อยละของซูโครสต่อของแข็งทั้งหมดในสารละลาย",
+  inputs:[{k:"pol",l:"%Pol",u:"%",d:76.5},{k:"brix",l:"%Brix",u:"°Bx",d:90}],
+  calc:function(v){
+    if(!(v.brix>0)) return {err:"Brix ต้องมากกว่า 0"};
+    return {res:[{l:"Purity",v:v.pol/v.brix*100,dp:2,u:"%",main:1}]};
+  },
+  formula:"%Purity = (%Pol ÷ %Brix) × 100"
+},
+{
+  id:"mass", tab:"CC / Exhaustion", title:"Purity Drop · %Crystal Content · %Exhaustion", slide:"สไลด์ 4, 10, 13",
+  desc:"ใช้ค่า Purity ของ Massecuite และ Molasses จากการ Nutsch",
+  inputs:[
+    {k:"grade",l:"ชนิด Massecuite",type:"select",opts:[["A","A-Massecuite / VHP"],["B","B-Massecuite"],["C","C-Massecuite"]],d:"A"},
+    {k:"bx",l:"Brix Massecuite",u:"°Bx",d:92},
+    {k:"pm",l:"Purity Massecuite",u:"%",d:85},
+    {k:"pmol",l:"Purity Molasses (Nutsch)",u:"%",d:65}
+  ],
+  calc:function(v){
+    if(v.pmol>=100) return {err:"Purity Molasses ต้องน้อยกว่า 100"};
+    if(!(v.pm>0)) return {err:"กรอก Purity Massecuite"};
+    var drop=v.pm-v.pmol, cc=drop*v.bx/(100-v.pmol), ex=drop*10000/((100-v.pmol)*v.pm);
+    var tg={A:[50,55],B:[40,45],C:[35,null]}[v.grade]||[50,55], st=[];
+    var ccOk = tg[1]===null ? cc>tg[0] : (cc>=tg[0]&&cc<=tg[1]);
+    var tgTxt = tg[1]===null ? ">"+tg[0]+"%" : tg[0]+"–"+tg[1]+"%";
+    st.push({c:ccOk?"ok":"warn",t:"%CC "+(ccOk?"อยู่ในเป้า":"ไม่อยู่ในเป้า")+" ("+v.grade+": "+tgTxt+")"});
+    st.push({c:ex>=60?"ok":"warn",t:"%Exhaustion "+(ex>=60?"ผ่าน":"ต่ำกว่า")+" เป้า ≥ 60%"});
+    if(drop<0) st.push({c:"bad",t:"Purity Molasses สูงกว่า Massecuite – ตรวจสอบตัวอย่าง"});
+    return {res:[
+      {l:"%Crystal Content",v:cc,dp:2,u:"%",main:1},
+      {l:"Purity Drop",v:drop,dp:2,u:"%"},
+      {l:"%Exhaustion",v:ex,dp:2,u:"%"}
+    ],status:st};
+  },
+  formula:"Purity Drop = Purity Mass − Purity Mol\n\n%CC = (Purity Mass − Purity Mol) × Brix Mass\n         ÷ (100 − Purity Mol)\n\n%Exhaustion = (Purity Mass − Purity Mol) × 10,000\n         ÷ [(100 − Purity Mol) × Purity Mass]",
+  note:"เป้า %CC: A 50–55%, B 40–45%, C >35% · Exhaustion ≥ 60% · Purity Rise ที่หม้อปั่น < 1.5%"
+},
+{
+  id:"sc", tab:"Supersaturation", title:"Supersaturation Coefficient (SC)", slide:"สไลด์ 23–28",
+  desc:"ค่าความอิ่มตัวที่จุดอิ่มตัวดึงจากตาราง Thieme ตามอุณหภูมิและ Purity อัตโนมัติ",
+  inputs:[
+    {k:"brix",l:"Brix ในหม้อ",u:"°Bx",d:83},
+    {k:"pty",l:"Purity",u:"%",d:70},
+    {k:"temp",l:"อุณหภูมิแมสคิท",u:"°C",d:70},
+    {k:"sat",l:"ความเข้มข้นอิ่มตัว (เว้นว่าง = ใช้ตาราง)",u:"%",d:"",opt:1}
+  ],
+  calc:function(v){
+    if(!(v.brix>0&&v.brix<100)) return {err:"Brix ต้องอยู่ระหว่าง 0–100"};
+    var useTab = !(v.sat>0&&v.sat<100), st=[], sat;
+    if(useTab){
+      var t=thieme(v.temp,v.pty); sat=t.v;
+      if(t.out) st.push({c:"warn",t:"อุณหภูมิ/Purity อยู่นอกตาราง (62–80 °C, 50–92%) ใช้ค่าขอบตาราง"});
+    } else sat=v.sat;
+    var sc=scOf(v.brix,sat), z=zoneOf(sc);
+    st.unshift({c:z.cls,t:z.name});
+    if(sc>=1.18&&sc<=1.22) st.push({c:"ok",t:"อยู่ในช่วงจุด Shock seeding 1.18–1.22"});
+    return {res:[
+      {l:"SC",v:sc,dp:3,main:1},
+      {l:"ความเข้มข้นอิ่มตัว"+(useTab?" (Thieme)":" (กรอกเอง)"),v:sat,dp:2,u:"%"},
+      {l:"น้ำตาล/น้ำ ในหม้อ",v:v.brix/(100-v.brix),dp:3},
+      {l:"น้ำตาล/น้ำ ที่จุดอิ่มตัว",v:sat/(100-sat),dp:3}
+    ],status:st,extra:gauge(sc)};
+  },
+  formula:"SC = [Brix ÷ (100 − Brix)] ÷ [Sat ÷ (100 − Sat)]\n\nSat = ความเข้มข้นที่จุดอิ่มตัว (Thieme's Table) ที่อุณหภูมิและ Purity เดียวกัน (ประมาณค่าระหว่างช่องตาราง)",
+  note:"ตัวอย่างสไลด์ 26: Brix 83, Purity 92%, 66 °C → Sat 76.4 → SC = 1.508"
+},
+{
+  id:"shock", tab:"ผสมจุดช็อคเชื้อ", title:"สัดส่วนผสม Raw Syrup / A-Molasses ที่จุดช็อคเชื้อ", slide:"สไลด์ 27",
+  desc:"หาสัดส่วนผสมให้ได้ Purity ที่จุด Shock และตรวจค่า SC",
+  inputs:[
+    {k:"prs",l:"Purity Raw Syrup",u:"%",d:84},
+    {k:"pam",l:"Purity A-Molasses",u:"%",d:65},
+    {k:"psh",l:"Purity ที่จุด Shock (เป้า)",u:"%",d:70},
+    {k:"bsh",l:"Brix ที่จุด Shock",u:"°Bx",d:80},
+    {k:"temp",l:"อุณหภูมิ",u:"°C",d:66},
+    {k:"batch",l:"ปริมาตรหม้อ (Batch)",u:"m³",d:70},
+    {k:"gp",l:"Graining volume",u:"% หม้อ",d:35},
+    {k:"rho",l:"Density",u:"t/m³",d:1.5}
+  ],
+  calc:function(v){
+    if(v.prs===v.pam) return {err:"Purity Raw Syrup ต้องไม่เท่ากับ A-Molasses"};
+    var r=(v.psh-v.pam)/(v.prs-v.pam), st=[];
+    if(r<0||r>1) st.push({c:"bad",t:"Purity เป้าต้องอยู่ระหว่าง Purity A-Molasses และ Raw Syrup"});
+    var gv=v.batch*v.gp/100, rs=gv*r, am=gv*(1-r);
+    var t=thieme(v.temp,v.psh), sc=scOf(v.bsh,t.v), z=zoneOf(sc);
+    st.unshift({c:z.cls,t:"SC ที่จุด Shock = "+fmt(sc,3)+" · "+z.name});
+    if(t.out) st.push({c:"warn",t:"อุณหภูมิ/Purity อยู่นอกตาราง Thieme"});
+    return {res:[
+      {l:"Raw Syrup",v:r*100,dp:1,u:"%",main:1},
+      {l:"A-Molasses",v:(1-r)*100,dp:1,u:"%"},
+      {l:"Graining volume",v:gv,dp:2,u:"m³"},
+      {l:"ปริมาตร Raw Syrup",v:rs,dp:2,u:"m³ ("+fmt(rs*v.rho,2)+" t)"},
+      {l:"ปริมาตร A-Molasses",v:am,dp:2,u:"m³ ("+fmt(am*v.rho,2)+" t)"},
+      {l:"SC ที่จุด Shock",v:sc,dp:3}
+    ],status:st,extra:gauge(sc)};
+  },
+  formula:"Raw Syrup ratio = (Pty Shock − Pty A-Mol) ÷ (Pty Raw Syrup − Pty A-Mol)\nA-Mol ratio = 1 − Raw Syrup ratio\nGraining volume = Batch × %Graining\nSC = [Brix ÷ (100 − Brix)] ÷ [Sat ÷ (100 − Sat)]  (Sat จาก Thieme)"
+},
+{
+  id:"seed", tab:"ปริมาณเชื้อ", title:"จำนวนผลึกและปริมาณเชื้อ (Slurry) ที่ต้องใช้", slide:"สไลด์ 40–42",
+  desc:"คำนวณจำนวนผลึกในหม้อ แล้วหาน้ำหนักเชื้อผงและปริมาตร Slurry",
+  inputs:[
+    {k:"ma",l:"ขนาดเม็ดที่ต้องการ (MA)",u:"mm",d:0.5},
+    {k:"vol",l:"ปริมาตรเคี่ยวเต็มหม้อ",u:"m³",d:60},
+    {k:"cc",l:"%Crystal Content",u:"%",d:38},
+    {k:"rho",l:"ความหนาแน่นแมสคิท",u:"t/m³",d:1.5},
+    {k:"seed",l:"ขนาดเชื้อจากเครื่องบด",u:"µm",d:7.51},
+    {k:"sf",l:"Slurry ต่อเชื้อผง 1 g",u:"ml/g",d:2.27}
+  ],
+  calc:function(v){
+    if(!(v.ma>0&&v.seed>0)) return {err:"ขนาดผลึกต้องมากกว่า 0"};
+    var tw=v.vol*v.rho*v.cc/100, g=tw*1e6;
+    var w1=1.11*Math.pow(v.ma/10,3), n=g/w1;
+    var ws=1.11*Math.pow(v.seed/10000,3), sg=n*ws;
+    return {res:[
+      {l:"เชื้อผงที่ต้องใช้",v:sg,dp:2,u:"g",main:1},
+      {l:"ปริมาตร Slurry",v:sg*v.sf,dp:2,u:"ml"},
+      {l:"น้ำหนักผลึกรวมในหม้อ",v:tw,dp:2,u:"ตัน"},
+      {l:"น้ำหนักผลึก 1 เม็ด",v:w1,dp:9,u:"g"},
+      {l:"จำนวนผลึกในหม้อ",v:n,dp:0,u:"ผลึก"},
+      {l:"น้ำหนักเชื้อ 1 เม็ด",v:ws,dp:14,u:"g"}
+    ]};
+  },
+  formula:"น้ำหนักผลึกรวม = ปริมาตร × ความหนาแน่น × %CC\nน้ำหนักผลึก 1 เม็ด = 1.11 × (ขนาด cm)³\nจำนวนผลึก = น้ำหนักผลึกรวม (g) ÷ น้ำหนัก 1 เม็ด\nเชื้อผง (g) = จำนวนผลึก × 1.11 × (ขนาดเชื้อ cm)³\nSlurry (ml) = เชื้อผง × 2.27",
+  note:"Slurry = น้ำตาลบดละเอียด 1 ส่วน : Ethyl alcohol 2.27 ส่วน (ปรับค่าได้ในช่อง ml/g)"
+},
+{
+  id:"size", tab:"ขนาดผลึก", title:"ขนาดผลึกจาก Seed (M.A.)", slide:"สไลด์ 43",
+  desc:"ขนาดผลึกที่ได้เมื่อเลี้ยงเชื้อด้วย Seed/Mass ratio ที่กำหนด",
+  inputs:[
+    {k:"s",l:"ขนาด Seed",u:"mm",d:0.243},
+    {k:"r",l:"Seed/Mass ratio",u:"%",d:33.333}
+  ],
+  calc:function(v){
+    if(!(v.r>0)) return {err:"Seed/Mass ratio ต้องมากกว่า 0"};
+    var f=Math.cbrt(100/v.r);
+    return {res:[
+      {l:"M.A. ที่ได้",v:v.s*f,dp:3,u:"mm",main:1},
+      {l:"ตัวคูณ (100 ÷ ratio)^(1/3)",v:f,dp:4}
+    ]};
+  },
+  formula:"M.A. = ขนาด Seed × (100 ÷ Seed ratio %)^(1/3)\nที่ ratio 1/3 (33.33%) → ตัวคูณ = 3^(1/3) = 1.4423",
+  note:"ตัวอย่าง: 0.243 → 0.350 → 0.506 → 0.730 → 1.050 mm"
+},
+{
+  id:"ratio", tab:"Seed/Mass Ratio", title:"Seed/Mass Ratio (สัดส่วนเชื้อต่อแมสคิท)", slide:"สไลด์ 44",
+  desc:"สัดส่วนเชื้อที่ต้องใช้ให้ได้ MA ของ VHP Mass ตามเป้า",
+  inputs:[
+    {k:"ccs",l:"%CC VHP Seed",u:"%",d:38},
+    {k:"mas",l:"MA VHP Seed",u:"mm",d:0.6},
+    {k:"ccm",l:"%CC VHP Mass",u:"%",d:51.94},
+    {k:"mam",l:"MA VHP Mass (เป้า)",u:"mm",d:0.9},
+    {k:"vol",l:"ปริมาตรหม้อ",u:"m³",d:60},
+    {k:"f",l:"ค่าปรับ (Factor)",u:"",d:1.1111}
+  ],
+  calc:function(v){
+    if(!(v.ccs>0&&v.mam>0)) return {err:"กรอก %CC Seed และ MA Mass มากกว่า 0"};
+    var r=(v.ccm/v.ccs)*Math.pow(v.mas/v.mam,3)*v.f*100, st=[];
+    if(r>100) st.push({c:"bad",t:"สัดส่วนเกิน 100% – เป้า MA เล็กเกินไปสำหรับเชื้อนี้"});
+    return {res:[
+      {l:"Seed Ratio",v:r,dp:2,u:"%",main:1},
+      {l:"ปริมาตร Seed (Footing)",v:v.vol*r/100,dp:2,u:"m³"},
+      {l:"Seed Ratio ตามทฤษฎี (Factor = 1)",v:r/v.f,dp:2,u:"%"}
+    ],status:st};
+  },
+  formula:"Seed Ratio = (%CC Mass ÷ %CC Seed) × (MA Seed ÷ MA Mass)³ × Factor",
+  note:"Factor 1.1111 ทำให้ผลตรงกับตารางในสไลด์ 44 (38 / 0.6 / 51.94 / 0.90 → 45.00%) · Factor = 1 คือสมดุลจำนวนผลึกตามทฤษฎี"
+},
+{
+  id:"grow", tab:"อัตราโตผลึก", title:"Crystal Growth Rate", slide:"สไลด์ 45",
+  desc:"อัตราการโตของผลึกจากขนาดเริ่มต้น ขนาดเป้าหมาย และเวลาเคี่ยว",
+  inputs:[
+    {k:"a",l:"Grain Footing",u:"µm",d:7.51},
+    {k:"b",l:"ขนาดผลึกที่ต้องการ",u:"mm",d:0.6},
+    {k:"t",l:"Operation Time",u:"นาที",d:300}
+  ],
+  calc:function(v){
+    if(!(v.t>0)) return {err:"เวลาต้องมากกว่า 0"};
+    var inc=v.b*1000-v.a, r=inc/v.t;
+    return {res:[
+      {l:"Crystal Growth Rate",v:r,dp:3,u:"µm/นาที",main:1},
+      {l:"ต่อชั่วโมง",v:r*60,dp:2,u:"µm/ชม."},
+      {l:"ขนาดที่เพิ่มขึ้น",v:inc,dp:2,u:"µm"}
+    ]};
+  },
+  formula:"ขนาดที่เพิ่มขึ้น = ขนาดที่ต้องการ (µm) − Grain Footing (µm)\nGrowth Rate = ขนาดที่เพิ่มขึ้น ÷ เวลา\n(1 mm = 1,000 µm)"
+},
+{
+  id:"ptime", tab:"เวลาเคี่ยว", title:"Processing Time จากอัตราโตผลึก", slide:"สไลด์ 46",
+  desc:"เวลาที่ต้องใช้เลี้ยงผลึกจากขนาดเชื้อถึงขนาดเป้าหมาย",
+  inputs:[
+    {k:"a",l:"Grain Footing (ขนาดเชื้อ)",u:"mm",d:0.6},
+    {k:"b",l:"ขนาดผลึกที่ต้องการ",u:"mm",d:1.0},
+    {k:"r",l:"Crystal Growth Rate",u:"µm/นาที",d:1.975}
+  ],
+  calc:function(v){
+    if(!(v.r>0)) return {err:"อัตราโตต้องมากกว่า 0"};
+    var inc=(v.b-v.a)*1000, t=inc/v.r;
+    return {res:[
+      {l:"Processing Time",v:t,dp:1,u:"นาที",main:1},
+      {l:"เท่ากับ",v:null,txt:hm(t)},
+      {l:"ขนาดที่เพิ่มขึ้น",v:inc,dp:1,u:"µm"}
+    ]};
+  },
+  formula:"ขนาดที่เพิ่มขึ้น = (ขนาดที่ต้องการ − Grain Footing) × 1,000\nProcessing Time = ขนาดที่เพิ่มขึ้น ÷ Growth Rate"
+},
+{
+  id:"cv", tab:"CV", title:"Coefficient of Variation (CV)", slide:"สไลด์ 5–6",
+  desc:"ความสม่ำเสมอของขนาดผลึก",
+  inputs:[{k:"sd",l:"ส่วนเบี่ยงเบนมาตรฐาน (SD)",u:"mm",d:0.2},{k:"ma",l:"ขนาดเฉลี่ย (MA)",u:"mm",d:0.9}],
+  calc:function(v){
+    if(!(v.ma>0)) return {err:"MA ต้องมากกว่า 0"};
+    var cv=v.sd/v.ma*100, g;
+    if(cv<25) g={c:"ok",t:"ดีเยี่ยม – การกระจายของขนาดน้อยมาก"};
+    else if(cv<=30) g={c:"ok",t:"สม่ำเสมอดี"};
+    else if(cv<=35) g={c:"warn",t:"ยอมรับได้ในน้ำตาลดิบบางระบบ – ตรวจ fines และการปั่น"};
+    else g={c:"bad",t:"กระจายกว้าง – บ่งชี้ false grain, ผลึกแตก, conglomerate"};
+    return {res:[{l:"CV",v:cv,dp:1,u:"%",main:1}],status:[g]};
+  },
+  formula:"CV (%) = (SD ÷ MA) × 100",
+  note:"<25% ดีเยี่ยม · 25–30% สม่ำเสมอดี · 30–35% ยอมรับได้ · >35% กระจายกว้าง"
+},
+{
+  id:"cycle", tab:"Cycle Time", title:"Cycle Time ต่อ Batch", slide:"สไลด์ 5, 8–9",
+  desc:"รวมเวลาแต่ละช่วงเพื่อดูว่าเวลาเสียไปกับส่วนใด",
+  inputs:[
+    {k:"prep",l:"Preparation (Start + Draw in)",u:"นาที",d:25},
+    {k:"evap",l:"Evaporation / Concentrating",u:"นาที",d:30},
+    {k:"grow",l:"Crystal Growth (Boiling)",u:"นาที",d:300},
+    {k:"wait",l:"Waiting",u:"นาที",d:10},
+    {k:"tran",l:"Transfer",u:"นาที",d:10},
+    {k:"disc",l:"Discharge",u:"นาที",d:15},
+    {k:"clean",l:"Cleaning / Steaming out",u:"นาที",d:10}
+  ],
+  calc:function(v){
+    var proc=v.evap+v.grow, delay=v.wait+v.tran+v.disc+v.clean, tot=v.prep+proc+delay;
+    if(!(tot>0)) return {err:"กรอกเวลาอย่างน้อยหนึ่งช่อง"};
+    return {res:[
+      {l:"Cycle Time",v:tot,dp:0,u:"นาที",main:1},
+      {l:"เท่ากับ",v:null,txt:hm(tot)},
+      {l:"Process Time (Operation)",v:proc,dp:0,u:"นาที · "+fmt(proc/tot*100,1)+"%"},
+      {l:"Delay Time",v:delay,dp:0,u:"นาที · "+fmt(delay/tot*100,1)+"%"},
+      {l:"Batch ต่อวัน (24 ชม.)",v:1440/tot,dp:2,u:"batch"}
+    ]};
+  },
+  formula:"Process Time = Evaporation + Crystal Growth\nDelay Time = Waiting + Transfer + Discharge + Cleaning\nCycle Time = Preparation + Process Time + Delay Time",
+  note:"Operation Time = ตั้งแต่เปิดไอเคี่ยวจนปิดไอเคี่ยว"
+},
+{
+  id:"press", tab:"แปลงหน่วยแรงดัน", title:"แปลงหน่วยแรงดัน mbar · mmHg · inHg", slide:"สไลด์ 53",
+  desc:"กรอกช่องใดช่องหนึ่ง ช่องอื่นจะคำนวณให้ (mbar = ความดันสัมบูรณ์, mmHg/inHg = ค่า Vacuum เกจ)",
+  custom:true
+}
+];
+
+/* ---------- storage ---------- */
+var KEY="vhp-pan-calc-v1", store={};
+try{ store=JSON.parse(localStorage.getItem(KEY)||"{}")||{}; }catch(e){ store={}; }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(store)); }catch(e){} }
+
+/* ---------- render ---------- */
+var tabsEl=document.getElementById("tabs"), app=document.getElementById("app");
+var current=store._tab||"purity";
+if(!CALCS.some(function(c){return c.id===current})) current="purity";
+
+function renderTabs(){
+  tabsEl.innerHTML=CALCS.map(function(c){
+    return '<button class="tab" role="tab" id="t-'+c.id+'" aria-selected="'+(c.id===current)+'" data-id="'+c.id+'">'+c.tab+'</button>';
+  }).join("");
+  var a=document.getElementById("t-"+current); if(a) a.scrollIntoView({block:"nearest",inline:"center"});
+}
+tabsEl.addEventListener("click",function(e){
+  var b=e.target.closest(".tab"); if(!b) return;
+  current=b.dataset.id; store._tab=current; save(); renderTabs(); renderCalc(); window.scrollTo(0,0);
+});
+
+function vals(c){
+  var s=store[c.id]||{}, v={};
+  c.inputs.forEach(function(i){ v[i.k]= (s[i.k]!==undefined)? s[i.k] : i.d; });
+  return v;
+}
+function num(v,c){
+  var o={};
+  c.inputs.forEach(function(i){
+    if(i.type==="select") o[i.k]=v[i.k];
+    else { var x=parseFloat(String(v[i.k]).replace(/,/g,"")); o[i.k]= isNaN(x)? (i.opt?NaN:0) : x; }
+  });
+  return o;
+}
+
+function renderCalc(){
+  var c=CALCS.filter(function(x){return x.id===current})[0];
+  if(c.custom){ renderPressure(c); return; }
+  var v=vals(c);
+  var fields=c.inputs.map(function(i){
+    var id="in-"+c.id+"-"+i.k, full=(i.opt||i.type==="select")?" full":"";
+    var ctl;
+    if(i.type==="select"){
+      ctl='<select id="'+id+'" data-k="'+i.k+'">'+i.opts.map(function(o){return '<option value="'+o[0]+'"'+(o[0]===v[i.k]?" selected":"")+'>'+o[1]+'</option>';}).join("")+'</select><span class="u">▾</span>';
+    } else {
+      ctl='<input id="'+id+'" data-k="'+i.k+'" type="text" inputmode="decimal" autocomplete="off" value="'+v[i.k]+'"'+(i.opt?' placeholder="ใช้ตาราง Thieme"':'')+'>'+(i.u?'<span class="u">'+i.u+'</span>':'');
+    }
+    return '<div class="f'+full+'"><label for="'+id+'">'+i.l+'</label><div class="inwrap">'+ctl+'</div></div>';
+  }).join("");
+  app.innerHTML=
+    '<div class="calc-head"><h2>'+c.title+'</h2><p>'+c.desc+'</p><span class="slide-ref">อ้างอิง '+c.slide+'</span></div>'+
+    '<section class="panel" aria-label="ข้อมูลที่กรอก"><h3>กรอกข้อมูล</h3><div class="grid">'+fields+'</div>'+
+    '<div class="actions"><button class="btn" id="reset">ใช้ค่าตัวอย่างในสไลด์</button></div></section>'+
+    '<section class="panel" aria-live="polite" aria-label="ผลลัพธ์"><h3>ผลการคำนวณ</h3><div id="out"></div>'+
+    '<details class="formula"><summary>ดูสูตร</summary><div class="body"><code>'+c.formula+'</code>'+(c.note?'<div>'+c.note+'</div>':'')+'</div></details></section>';
+  app.querySelectorAll("input,select").forEach(function(el){
+    el.addEventListener("input",function(){
+      store[c.id]=store[c.id]||{}; store[c.id][el.dataset.k]=el.value; save(); compute(c);
+    });
+  });
+  document.getElementById("reset").addEventListener("click",function(){ delete store[c.id]; save(); renderCalc(); });
+  compute(c);
+}
+
+function compute(c){
+  var out=document.getElementById("out"), r;
+  try{ r=c.calc(num(vals(c),c)); }catch(e){ r={err:"กรอกตัวเลขให้ครบ"}; }
+  if(r.err){ out.innerHTML='<div class="err">'+r.err+'</div>'; return; }
+  var rows=r.res.map(function(x){
+    var val = x.txt!==undefined ? x.txt : fmt(x.v,x.dp);
+    return '<div class="res'+(x.main?" main":"")+'"><span class="l">'+x.l+'</span><span class="v">'+val+(x.u?'<small>'+x.u+'</small>':'')+'</span></div>';
+  }).join("");
+  var st = r.status&&r.status.length ? '<div class="status">'+r.status.map(function(s){return '<div>'+pill(s.c,s.t)+'</div>';}).join("")+'</div>' : "";
+  out.innerHTML='<div class="res-list">'+rows+'</div>'+(r.extra||"")+st;
+}
+
+/* pressure converter */
+function renderPressure(c){
+  var s=store.press||{mbar:"130"};
+  app.innerHTML=
+    '<div class="calc-head"><h2>'+c.title+'</h2><p>'+c.desc+'</p><span class="slide-ref">อ้างอิง '+c.slide+'</span></div>'+
+    '<section class="panel"><h3>กรอกค่าในช่องใดก็ได้</h3><div class="grid">'+
+      '<div class="f full"><label for="p-mbar">mbar (abs)</label><div class="inwrap"><input id="p-mbar" data-u="mbar" inputmode="decimal" type="text" autocomplete="off"><span class="u">mbar a</span></div></div>'+
+      '<div class="f"><label for="p-mm">mmHg (Vacuum)</label><div class="inwrap"><input id="p-mm" data-u="mm" inputmode="decimal" type="text" autocomplete="off"><span class="u">mmHg</span></div></div>'+
+      '<div class="f"><label for="p-in">inHg (Vacuum)</label><div class="inwrap"><input id="p-in" data-u="in" inputmode="decimal" type="text" autocomplete="off"><span class="u">inHg</span></div></div>'+
+    '</div><div class="actions"><button class="btn" id="reset">ใช้ค่าตัวอย่างในสไลด์</button></div></section>'+
+    '<section class="panel" aria-live="polite"><h3>ตรวจกับค่าควบคุม</h3><div id="pst"></div>'+
+    '<details class="formula"><summary>ดูสูตร</summary><div class="body"><code>mmHg = mbar × 0.750062 − 760\ninHg = mmHg ÷ 25.4\nmbar = (mmHg + 760) ÷ 0.750062</code><div>ตัวอย่าง: 130 mbar = −662.49 mmHg = −26.08 inHg</div></div></details></section>';
+  var eM=document.getElementById("p-mbar"), eH=document.getElementById("p-mm"), eI=document.getElementById("p-in"), pst=document.getElementById("pst");
+  function fromMbar(m,src){
+    var mm=m*0.750062-760, inch=mm/25.4;
+    if(src!=="mbar") eM.value=isFinite(m)?(+m.toFixed(2)):"";
+    if(src!=="mm") eH.value=isFinite(mm)?(+mm.toFixed(2)):"";
+    if(src!=="in") eI.value=isFinite(inch)?(+inch.toFixed(2)):"";
+    var out=[];
+    if(!isFinite(mm)){ pst.innerHTML='<div class="err">กรอกตัวเลข</div>'; return; }
+    var ctl = mm<=-630&&mm>=-660, pre = mm<=-400&&mm>=-500;
+    out.push(pill(ctl?"ok":"warn","Vacuum ขณะเคี่ยว −630 ถึง −660 mmHg: "+(ctl?"อยู่ในช่วง":"นอกช่วง")));
+    out.push(pill(pre?"ok":"warn","Pre-Vacuum −400 ถึง −500 mmHg: "+(pre?"อยู่ในช่วง":"นอกช่วง")));
+    pst.innerHTML='<div class="res-list"><div class="res main"><span class="l">Vacuum</span><span class="v">'+fmt(mm,2)+'<small>mmHg</small></span></div>'+
+      '<div class="res"><span class="l">ความดันสัมบูรณ์</span><span class="v">'+fmt(m,2)+'<small>mbar a</small></span></div>'+
+      '<div class="res"><span class="l">inHg</span><span class="v">'+fmt(inch,2)+'<small>inHg</small></span></div></div>'+
+      '<div class="status">'+out.map(function(x){return "<div>"+x+"</div>"}).join("")+'</div>';
+  }
+  function onIn(e){
+    var u=e.target.dataset.u, x=parseFloat(e.target.value.replace(/,/g,"")), m;
+    if(u==="mbar") m=x; else if(u==="mm") m=(x+760)/0.750062; else m=(x*25.4+760)/0.750062;
+    store.press={mbar:String(m)}; save(); fromMbar(m,u);
+  }
+  [eM,eH,eI].forEach(function(el){el.addEventListener("input",onIn)});
+  document.getElementById("reset").addEventListener("click",function(){ delete store.press; save(); renderPressure(c); });
+  fromMbar(parseFloat(s.mbar),null);
+}
+
+renderTabs(); renderCalc();
+})();
+</script>
+</body>
+</html>
